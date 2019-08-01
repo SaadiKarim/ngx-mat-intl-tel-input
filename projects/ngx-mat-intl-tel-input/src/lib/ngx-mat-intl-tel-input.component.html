@@ -1,30 +1,60 @@
 <div class="ngx-mat-tel-input-container">
-  <button type="button" mat-button [matMenuTriggerFor]="menu" class="country-selector">
-    <span class="country-selector-flag flag" [ngClass]="selectedCountry.flagClass"></span>
-    <span class="country-selector-code">+{{selectedCountry.dialCode}}</span>
+  <button
+    type="button"
+    mat-button
+    [matMenuTriggerFor]="menu"
+    class="country-selector"
+  >
+    <span
+      class="country-selector-flag flag"
+      [ngClass]="selectedCountry.flagClass"
+    ></span>
+    <span class="country-selector-code">+{{ selectedCountry.dialCode }}</span>
   </button>
   <mat-menu #menu="matMenu">
-    <button type="button" mat-menu-item class="country-list-button" *ngFor="let country of preferredCountriesInDropDown" (click)="onCountrySelect(country, focusable)">
+    <button
+      type="button"
+      mat-menu-item
+      class="country-list-button"
+      *ngFor="let country of preferredCountriesInDropDown"
+      (click)="onCountrySelect(country, focusable)"
+    >
       <div class="icon-wrapper">
         <div class="flag" [ngClass]="country.flagClass"></div>
       </div>
-      <div class="label-wrapper">{{country.name}} +{{country.dialCode}}</div>
+      <div class="label-wrapper">
+        {{ country.name }} +{{ country.dialCode }}
+      </div>
     </button>
     <mat-divider *ngIf="preferredCountriesInDropDown?.length"></mat-divider>
-    <button type="button" mat-menu-item class="country-list-button" *ngFor="let country of allCountries" (click)="onCountrySelect(country, focusable)">
+    <button
+      type="button"
+      mat-menu-item
+      class="country-list-button"
+      *ngFor="let country of allCountries"
+      (click)="onCountrySelect(country, focusable)"
+    >
       <div class="icon-wrapper">
         <div class="flag" [ngClass]="country.flagClass"></div>
       </div>
-      <div class="label-wrapper">{{country.name}} +{{country.dialCode}}</div>
+      <div class="label-wrapper">
+        {{ country.name }} +{{ country.dialCode }}
+      </div>
     </button>
   </mat-menu>
 
-  <input matInput type="tel" id="phone" autocomplete="off"
-         [ngClass]="cssClass"
-         (blur)="onTouched()"
-         (keypress)="onInputKeyPress($event)"
-         [(ngModel)]="phoneNumber"
-         (ngModelChange)="onPhoneNumberChange()"
-         [errorStateMatcher]="errorStateMatcher"
-         [disabled]="disabled" #focusable>
+  <input
+    matInput
+    type="tel"
+    id="phone"
+    autocomplete="off"
+    [ngClass]="cssClass"
+    (blur)="onTouched()"
+    (keypress)="onInputKeyPress($event)"
+    [(ngModel)]="phoneNumber"
+    (ngModelChange)="onPhoneNumberChange()"
+    [errorStateMatcher]="errorStateMatcher"
+    [disabled]="disabled"
+    #focusable
+  />
 </div>

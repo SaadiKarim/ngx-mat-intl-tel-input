@@ -10,15 +10,19 @@ import {
   OnDestroy
 } from '@angular/core';
 
-import {NG_VALIDATORS, NgControl} from '@angular/forms';
-import {CountryCode, Examples} from './data/country-code';
-import {phoneNumberValidator} from './ngx-mat-intl-tel-input.validator';
-import {Country} from './model/country.model';
-import {getExampleNumber, parsePhoneNumberFromString, PhoneNumber} from 'libphonenumber-js';
-import {MatFormFieldControl, ErrorStateMatcher} from '@angular/material';
-import {coerceBooleanProperty} from '@angular/cdk/coercion';
-import {Subject} from 'rxjs';
-import {FocusMonitor} from '@angular/cdk/a11y';
+import { NG_VALIDATORS, NgControl } from '@angular/forms';
+import { CountryCode, Examples } from './data/country-code';
+import { phoneNumberValidator } from './ngx-mat-intl-tel-input.validator';
+import { Country } from './model/country.model';
+import {
+  getExampleNumber,
+  parsePhoneNumberFromString,
+  PhoneNumber
+} from 'libphonenumber-js';
+import { MatFormFieldControl, ErrorStateMatcher } from '@angular/material';
+import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { Subject } from 'rxjs';
+import { FocusMonitor } from '@angular/cdk/a11y';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -27,17 +31,19 @@ import {FocusMonitor} from '@angular/cdk/a11y';
   styleUrls: ['./ngx-mat-intl-tel-input.component.css'],
   providers: [
     CountryCode,
-    {provide: MatFormFieldControl, useExisting: NgxMatIntlTelInputComponent},
+    { provide: MatFormFieldControl, useExisting: NgxMatIntlTelInputComponent },
     {
       provide: NG_VALIDATORS,
       useValue: phoneNumberValidator,
-      multi: true,
+      multi: true
     }
   ]
 })
-export class NgxMatIntlTelInputComponent implements OnInit, OnDestroy, DoCheck, MatFormFieldControl<any> {
+export class NgxMatIntlTelInputComponent
+  implements OnInit, OnDestroy, DoCheck, MatFormFieldControl<any> {
   static nextId = 0;
 
+  @Input() locale: 'fr' | 'en';
   @Input() preferredCountries: Array<string> = [];
   @Input() enablePlaceholder = true;
   @Input() cssClass;
@@ -54,7 +60,8 @@ export class NgxMatIntlTelInputComponent implements OnInit, OnDestroy, DoCheck, 
   stateChanges = new Subject<void>();
   focused = false;
   errorState = false;
-  @HostBinding() id = `ngx-mat-intl-tel-input-${NgxMatIntlTelInputComponent.nextId++}`;
+  @HostBinding()
+  id = `ngx-mat-intl-tel-input-${NgxMatIntlTelInputComponent.nextId++}`;
   describedBy = '';
   phoneNumber = '';
   allCountries: Array<Country> = [];
@@ -77,12 +84,20 @@ export class NgxMatIntlTelInputComponent implements OnInit, OnDestroy, DoCheck, 
     let prefix;
     const numericVal = val.replace(/\D/g, '');
     // normalized means ensure starts with a 1, so we can match against the full dial code
-    const normalizedVal = numericVal.charAt(0) === '1' ? numericVal : '1'.concat(numericVal);
+    const normalizedVal =
+      numericVal.charAt(0) === '1' ? numericVal : '1'.concat(numericVal);
     if (val.charAt(0) !== '+') {
       // when using separateDialCode, it is visible so is effectively part of the typed number
       prefix = '+'.concat(dialCode);
-    } else if (val && val.charAt(0) !== '+' && val.charAt(0) !== '1' && dialCode && dialCode.charAt(0) === '1'
-      && dialCode.length === 4 && dialCode !== normalizedVal.substr(0, 4)) {
+    } else if (
+      val &&
+      val.charAt(0) !== '+' &&
+      val.charAt(0) !== '1' &&
+      dialCode &&
+      dialCode.charAt(0) === '1' &&
+      dialCode.length === 4 &&
+      dialCode !== normalizedVal.substr(0, 4)
+    ) {
       // ensure national NANP numbers contain the area code
       prefix = dialCode.substr(1);
     } else {
@@ -91,11 +106,9 @@ export class NgxMatIntlTelInputComponent implements OnInit, OnDestroy, DoCheck, 
     return prefix + numericVal;
   }
 
-  onTouched = () => {
-  };
+  onTouched = () => {};
 
-  propagateChange = (_: any) => {
-  };
+  propagateChange = (_: any) => {};
 
   constructor(
     private countryCodeData: CountryCode,
@@ -103,22 +116,26 @@ export class NgxMatIntlTelInputComponent implements OnInit, OnDestroy, DoCheck, 
     private elRef: ElementRef<HTMLElement>,
     @Optional() @Self() public ngControl: NgControl
   ) {
-    fm.monitor(elRef, true).subscribe(origin => {
+    fm.monitor(elRef, true).subscribe((origin) => {
       if (this.focused && !origin) {
         this.onTouched();
       }
       this.focused = !!origin;
       this.stateChanges.next();
     });
-    this.fetchCountryData();
+
     if (this.ngControl != null) {
       this.ngControl.valueAccessor = this;
     }
   }
 
   ngOnInit() {
+    if (!this.locale) {
+      this.locale = 'fr';
+    }
+    this.fetchCountryData();
     if (this.preferredCountries.length) {
-      this.preferredCountries.forEach(iso2 => {
+      this.preferredCountries.forEach((iso2) => {
         const preferredCountry = this.allCountries.filter((c) => {
           return c.iso2 === iso2;
         });
@@ -126,7 +143,9 @@ export class NgxMatIntlTelInputComponent implements OnInit, OnDestroy, DoCheck, 
       });
     }
     if (this.onlyCountries.length) {
-      this.allCountries = this.allCountries.filter(c => this.onlyCountries.includes(c.iso2));
+      this.allCountries = this.allCountries.filter((c) =>
+        this.onlyCountries.includes(c.iso2)
+      );
     }
     if (this.preferredCountriesInDropDown.length) {
       this.selectedCountry = this.preferredCountriesInDropDown[0];
@@ -168,19 +187,21 @@ export class NgxMatIntlTelInputComponent implements OnInit, OnDestroy, DoCheck, 
   }
 
   protected fetchCountryData(): void {
-    this.countryCodeData.allCountries.forEach(c => {
+    this.countryCodeData.allCountries.forEach((c) => {
       const country: Country = {
-        name: c[0].toString(),
+        name: c[0][this.locale].toString(),
         iso2: c[1].toString(),
         dialCode: c[2].toString(),
         priority: +c[3] || 0,
-        areaCodes: c[4] as string[] || undefined,
+        areaCodes: (c[4] as string[]) || undefined,
         flagClass: c[1].toString().toUpperCase(),
         placeHolder: ''
       };
 
       if (this.enablePlaceholder) {
-        country.placeHolder = NgxMatIntlTelInputComponent.getPhoneNumberPlaceHolder(country.iso2.toUpperCase());
+        country.placeHolder = NgxMatIntlTelInputComponent.getPhoneNumberPlaceHolder(
+          country.iso2.toUpperCase()
+        );
       }
 
       this.allCountries.push(country);
@@ -209,7 +230,9 @@ export class NgxMatIntlTelInputComponent implements OnInit, OnDestroy, DoCheck, 
           return;
         }
         setTimeout(() => {
-          this.selectedCountry = this.allCountries.find(c => c.iso2 === countryCode.toLowerCase());
+          this.selectedCountry = this.allCountries.find(
+            (c) => c.iso2 === countryCode.toLowerCase()
+          );
         }, 1);
       }
     }
@@ -269,5 +292,4 @@ export class NgxMatIntlTelInputComponent implements OnInit, OnDestroy, DoCheck, 
     this.stateChanges.complete();
     this.fm.stopMonitoring(this.elRef);
   }
-
 }
